@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2e7d32">
+<title>Green Gallery</title>
+<style>
+  :root {
+    --green: #2e7d32;
+    --green-dark: #1b5e20;
+    --green-soft: #e8f5e9;
+    --ink: #1f2a1f;
+    --muted: #5f6f5f;
+    --line: #dce6dc;
+    --bg: #f6faf6;
+    --card: #ffffff;
+    --warn: #ef6c00;
+    --bad: #c62828;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    padding-top: env(safe-area-inset-top);
+  }
+  header {
+    background: var(--green);
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 { margin: 0; font-size: 20px; letter-spacing: .3px; }
+  header small { display: block; opacity: .85; font-size: 12px; margin-top: 2px; }
+  main { flex: 1; overflow-y: auto; padding: 14px 14px 90px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .card h3 { margin: 0 0 4px; font-size: 16px; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.4; }
+  .hero {
+    background: linear-gradient(135deg, var(--green), #66bb6a);
+    color: #fff;
+    border: 0;
+  }
+  .hero h2 { margin: 0 0 6px; font-size: 20px; }
+  .hero p { color: #f1fff1; }
+  .row { display: flex; gap: 10px; }
+  .row > * { flex: 1; }
+  button, .btn {
+    font: inherit;
+    border: 0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    background: var(--green);
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+  }
+  button.secondary, .btn.secondary { background: var(--green-soft); color: var(--green-dark); }
+  button.whatsapp, .btn.whatsapp { background: #25d366; color: #063; }
+  button.danger { background: #fdecea; color: var(--bad); }
+  button.small, .btn.small { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 4px; }
+  input, select, textarea {
+    width: 100%;
+    font: inherit;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink);
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-top: 1px solid var(--line);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  nav button {
+    flex: 1;
+    background: transparent;
+    color: var(--muted);
+    border-radius: 0;
+    padding: 10px 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  nav button .ic { display: block; font-size: 20px; margin-bottom: 2px; }
+  nav button.active { color: var(--green); }
+  .badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 99px;
+    background: var(--green-soft);
+    color: var(--green-dark);
+  }
+  .badge.Pending { background: #fff3e0; color: var(--warn); }
+  .badge.Confirmed { background: #e3f2fd; color: #1565c0; }
+  .badge.Completed { background: var(--green-soft); color: var(--green-dark); }
+  .badge.Cancelled { background: #fdecea; color: var(--bad); }
+  .svc { display: flex; gap: 12px; align-items: flex-start; }
+  .svc .emoji { font-size: 28px; line-height: 1; }
+  .meta { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .empty { text-align: center; color: var(--muted); padding: 30px 10px; }
+  .toast {
+    position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%);
+    background: #263238; color: #fff; padding: 10px 16px; border-radius: 99px;
+    font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .toast.show { opacity: 1; }
+  .link { background: none; color: var(--muted); font-weight: 500; text-decoration: underline; padding: 8px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🌿 Green Gallery</h1>
+    <small>Terrace &amp; balcony garden care, on call</small>
+  </div>
+  <span id="modeTag" class="badge hidden">Staff</span>
+</header>
+
+<main id="view"></main>
+
+<nav id="nav">
+  <button data-tab="home" class="active"><span class="ic">🏡</span>Home</button>
+  <button data-tab="book"><span class="ic">📅</span>Book</button>
+  <button data-tab="requests"><span class="ic">📋</span>My Requests</button>
+  <button data-tab="admin" class="hidden"><span class="ic">🛠️</span>Staff</button>
+</nav>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ============ CONFIG: edit these before building ============ */
+const CONFIG = {
+  businessName: "Green Gallery",
+  phone: "+919324044341",          // number for Call button (with country code)
+  whatsapp: "919324044341",        // WhatsApp number, digits only, with country code
+  staffPin: "3312",                // PIN for staff screen - change this
+  visitSlots: ["Morning (8-11)", "Afternoon (12-3)", "Evening (4-7)"]
+};
+
+const SERVICES = [
+  { id: "care",   emoji: "💧", name: "Routine Plant Care", desc: "Watering, cleaning leaves, removing dead growth and general upkeep of your terrace or balcony plants." },
+  { id: "prune",  emoji: "✂️", name: "Pruning & Trimming", desc: "Shaping plants, trimming overgrown branches and keeping hedges and climbers tidy." },
+  { id: "pest",   emoji: "🐛", name: "Pest & Disease Control", desc: "Inspection and treatment for pests, fungus and plant diseases using plant-safe methods." },
+  { id: "repot",  emoji: "🪴", name: "Repotting & Soil Refresh", desc: "Moving plants to new pots and refreshing soil mix for healthier growth." },
+  { id: "feed",   emoji: "🌱", name: "Fertilizing & Composting", desc: "Feeding schedule, organic fertilizer and compost support for pots and planters." },
+  { id: "setup",  emoji: "🌸", name: "Garden Setup / Makeover", desc: "Plan and set up a new balcony or terrace garden, or refresh an existing one." },
+  { id: "sitter", emoji: "🧳", name: "Plant-Sitting While Away", desc: "We look after your plants while you travel." }
+];
+
+const STATUSES = ["Pending", "Confirmed", "Completed", "Cancelled"];
+const KEY = "gg_bookings_v1";
+const state = { tab: "home", staff: false };
+
+/* ---------- storage ---------- */
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; }
+}
+function save(list) { localStorage.setItem(KEY, JSON.stringify(list)); }
+
+/* ---------- helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function toast(msg) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+function svcName(id) { return (SERVICES.find(s => s.id === id) || {}).name || id; }
+function fmtDate(d) {
+  if (!d) return "";
+  const [y, m, day] = d.split("-");
+  return `${day}-${m}-${y}`;
+}
+function waLink(number, text) {
+  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+}
+function bookingText(b) {
+  return `Hello ${CONFIG.businessName}, I would like to book a visit.\n` +
+    `Name: ${b.name}\nPhone: ${b.phone}\nAddress: ${b.address}\n` +
+    `Service: ${svcName(b.service)}\nDate: ${fmtDate(b.date)}, ${b.slot}\n` +
+    (b.notes ? `Notes: ${b.notes}\n` : "") + `Ref: ${b.id}`;
+}
+function newId() {
+  return "GG" + Date.now().toString(36).toUpperCase().slice(-6);
+}
+
+/* ---------- views ---------- */
+function renderHome() {
+  return `
+    <div class="card hero">
+      <h2>Your garden, cared for.</h2>
+      <p>Book an on-call visit for your terrace or balcony garden. Our team comes to you.</p>
+      <div class="row" style="margin-top:12px">
+        <button data-go="book" style="background:#fff;color:var(--green-dark)">Book a visit</button>
+      </div>
+    </div>
+    <div class="row" style="margin-bottom:12px">
+      <a class="btn secondary" href="tel:${CONFIG.phone}">📞 Call us</a>
+      <a class="btn whatsapp" href="${waLink(CONFIG.whatsapp, "Hello " + CONFIG.businessName + ", I need help with my garden.")}">💬 WhatsApp</a>
+    </div>
+    <h3 style="margin:16px 2px 10px">Our services</h3>
+    ${SERVICES.map(s => `
+      <div class="card svc">
+        <div class="emoji">${s.emoji}</div>
+        <div style="flex:1">
+          <h3>${esc(s.name)}</h3>
+          <p>${esc(s.desc)}</p>
+          <div style="margin-top:10px">
+            <button class="small secondary" data-book="${s.id}">Book this</button>
+          </div>
+        </div>
+      </div>`).join("")}
+    <div style="text-align:center;margin-top:8px">
+      <button class="link" id="staffLink">${state.staff ? "Log out of staff mode" : "Staff login"}</button>
+    </div>`;
+}
+
+function renderBook(preset) {
+  const today = new Date().toISOString().slice(0, 10);
+  return `
+    <div class="card">
+      <h3>Book an on-call visit</h3>
+      <p>Fill in the details and we will confirm your visit.</p>
+      <form id="bookForm" autocomplete="on">
+        <label>Your name</label>
+        <input name="name" required autocomplete="name">
+        <label>Phone number</label>
+        <input name="phone" type="tel" required autocomplete="tel" inputmode="tel">
+        <label>Address (with flat / floor)</label>
+        <textarea name="address" required></textarea>
+        <label>Service</label>
+        <select name="service" required>
+          ${SERVICES.map(s => `<option value="${s.id}" ${s.id === preset ? "selected" : ""}>${esc(s.name)}</option>`).join("")}
+        </select>
+        <div class="row">
+          <div>
+            <label>Preferred date</label>
+            <input name="date" type="date" min="${today}" required>
+          </div>
+          <div>
+            <label>Time slot</label>
+            <select name="slot">${CONFIG.visitSlots.map(s => `<option>${esc(s)}</option>`).join("")}</select>
+          </div>
+        </div>
+        <label>Notes (plants, problems, access instructions)</label>
+        <textarea name="notes"></textarea>
+        <div style="margin-top:16px"><button type="submit" style="width:100%">Submit request</button></div>
+      </form>
+    </div>`;
+}
+
+function bookingCard(b, staff) {
+  return `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <h3>${esc(svcName(b.service))}</h3>
+        <span class="badge ${b.status}">${b.status}</span>
+      </div>
+      <div class="meta">
+        📅 ${esc(fmtDate(b.date))} · ${esc(b.slot)}<br>
+        📍 ${esc(b.address)}<br>
+        ${staff ? `👤 ${esc(b.name)} · ${esc(b.phone)}<br>` : ""}
+        ${b.notes ? `📝 ${esc(b.notes)}<br>` : ""}
+        <span>Ref: ${esc(b.id)}</span>
+      </div>
+      <div class="row" style="margin-top:10px;flex-wrap:wrap">
+        ${staff ? `
+          <a class="btn small secondary" href="tel:${esc(b.phone)}">Call</a>
+          <a class="btn small whatsapp" href="${waLink(b.phone.replace(/\D/g, ""), "Hello " + b.name + ", this is " + CONFIG.businessName + " regarding your booking " + b.id + " (" + b.status + ").")}">WhatsApp</a>
+          <select data-status="${b.id}" style="flex:1.4">
+            ${STATUSES.map(s => `<option ${s === b.status ? "selected" : ""}>${s}</option>`).join("")}
+          </select>
+          <button class="small danger" data-del="${b.id}">Delete</button>
+        ` : `
+          <a class="btn small whatsapp" href="${waLink(CONFIG.whatsapp, bookingText(b))}">Send on WhatsApp</a>
+          ${b.status === "Pending" ? `<button class="small danger" data-cancel="${b.id}">Cancel</button>` : ""}
+        `}
+      </div>
+    </div>`;
+}
+
+function renderRequests() {
+  const list = load().slice().reverse();
+  if (!list.length) {
+    return `<div class="empty">No requests yet.<br><br><button data-go="book">Book your first visit</button></div>`;
+  }
+  return list.map(b => bookingCard(b, false)).join("");
+}
+
+function renderAdmin() {
+  const list = load().slice().reverse();
+  const counts = STATUSES.map(s => `${s}: ${list.filter(b => b.status === s).length}`).join(" · ");
+  return `
+    <div class="card"><h3>Staff view</h3><p>${counts}</p>
+      <p style="margin-top:6px;font-size:12px">Shows bookings stored on this phone.</p></div>
+    ${list.length ? list.map(b => bookingCard(b, true)).join("") : `<div class="empty">No bookings yet.</div>`}`;
+}
+
+/* ---------- render + events ---------- */
+function render(preset) {
+  const v = $("#view");
+  if (state.tab === "home") v.innerHTML = renderHome();
+  else if (state.tab === "book") v.innerHTML = renderBook(preset);
+  else if (state.tab === "requests") v.innerHTML = renderRequests();
+  else if (state.tab === "admin") v.innerHTML = renderAdmin();
+  v.scrollTop = 0;
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === state.tab));
+  $('nav [data-tab="admin"]').classList.toggle("hidden", !state.staff);
+  $("#modeTag").classList.toggle("hidden", !state.staff);
+}
+
+function go(tab, preset) { state.tab = tab; render(preset); }
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("button, a");
+  if (!t) return;
+  if (t.dataset.tab) return go(t.dataset.tab);
+  if (t.dataset.go) return go(t.dataset.go);
+  if (t.dataset.book) return go("book", t.dataset.book);
+  if (t.id === "staffLink") {
+    if (state.staff) { state.staff = false; toast("Staff mode off"); return render(); }
+    const pin = prompt("Enter staff PIN");
+    if (pin === null) return;
+    if (pin === CONFIG.staffPin) { state.staff = true; toast("Staff mode on"); render(); }
+    else toast("Wrong PIN");
+    return;
+  }
+  if (t.dataset.cancel) {
+    if (!confirm("Cancel this request?")) return;
+    const list = load();
+    const b = list.find(x => x.id === t.dataset.cancel);
+    if (b) { b.status = "Cancelled"; save(list); render(); }
+    return;
+  }
+  if (t.dataset.del) {
+    if (!confirm("Delete this booking permanently?")) return;
+    save(load().filter(x => x.id !== t.dataset.del));
+    render();
+  }
+});
+
+document.addEventListener("change", e => {
+  const id = e.target.dataset && e.target.dataset.status;
+  if (!id) return;
+  const list = load();
+  const b = list.find(x => x.id === id);
+  if (b) { b.status = e.target.value; save(list); render(); toast("Status updated"); }
+});
+
+document.addEventListener("submit", e => {
+  if (e.target.id !== "bookForm") return;
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target).entries());
+  const b = {
+    id: newId(),
+    name: f.name.trim(),
+    phone: f.phone.trim(),
+    address: f.address.trim(),
+    service: f.service,
+    date: f.date,
+    slot: f.slot,
+    notes: (f.notes || "").trim(),
+    status: "Pending",
+    createdAt: new Date().toISOString()
+  };
+  const list = load();
+  list.push(b);
+  save(list);
+  toast("Request saved");
+  state.tab = "requests";
+  render();
+  if (confirm("Request saved. Send it to Green Gallery on WhatsApp now?")) {
+    window.location.href = waLink(CONFIG.whatsapp, bookingText(b));
+  }
+});
+
+render();
+</script>
+</body>
+</html>

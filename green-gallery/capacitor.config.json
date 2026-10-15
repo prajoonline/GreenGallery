@@ -1,0 +1,8 @@
+{
+  "appId": "com.greengallery.app",
+  "appName": "Green Gallery",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  }
+}
